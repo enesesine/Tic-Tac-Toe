@@ -1,11 +1,9 @@
-// Initialer Zustand der Felder
 let fields = [null, null, null, null, null, null, null, null, null];
+let currentPlayer = "circle";
+let circleWins = 0;
+let crossWins = 0;
+let gameOver = false;
 
-let currentPlayer = "circle"; // Der erste Spieler ist 'circle'
-let circleWins = 0; // Anzahl der Siege für 'circle'
-let crossWins = 0; // Anzahl der Siege für 'cross'
-
-// Funktion zum Rendern des Tic Tac Toe Feldes
 function render(winningLine = []) {
   let html = "<table>";
 
@@ -31,41 +29,40 @@ function render(winningLine = []) {
   html += "</table>";
 
   document.getElementById("Container").innerHTML = html;
-  updateStatus(); // Status aktualisieren nach dem Rendern
+  updateStatus();
 }
 
-// Funktion, die beim Klicken auf ein <td> Element aufgerufen wird
 function handleClick(index) {
-  if (fields[index] === null) {
+  if (fields[index] === null && !gameOver) {
     fields[index] = currentPlayer;
-    currentPlayer = currentPlayer === "circle" ? "cross" : "circle"; // Wechsel des Spielers
-
     const winningLine = checkWin();
-    render(winningLine); // Tabelle neu rendern
 
     if (winningLine.length > 0) {
-      // Gewinner gefunden, Punkte aktualisieren
+      gameOver = true;
       if (fields[winningLine[0]] === "circle") {
         circleWins++;
       } else {
         crossWins++;
       }
-      updateScoreboard(); // Punktestand aktualisieren
+      updateScoreboard();
+      render(winningLine);
+    } else {
+      currentPlayer = currentPlayer === "circle" ? "cross" : "circle";
+      render();
     }
   }
 }
 
-// Funktion zum Überprüfen auf einen Sieg
 function checkWin() {
   const winPatterns = [
-    [0, 1, 2], // Zeile 1
-    [3, 4, 5], // Zeile 2
-    [6, 7, 8], // Zeile 3
-    [0, 3, 6], // Spalte 1
-    [1, 4, 7], // Spalte 2
-    [2, 5, 8], // Spalte 3
-    [0, 4, 8], // Diagonale 1
-    [2, 4, 6], // Diagonale 2
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6],
   ];
 
   for (const pattern of winPatterns) {
@@ -75,11 +72,9 @@ function checkWin() {
     }
   }
 
-  // Kein Gewinner gefunden
   return [];
 }
 
-// Funktion zur Erzeugung des SVG-Codes für einen Kreis
 function generateCircleSVG() {
   return `
     <svg width="70" height="70" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
@@ -93,7 +88,6 @@ function generateCircleSVG() {
     </svg>`;
 }
 
-// Funktion zur Erzeugung des SVG-Codes für ein Kreuz
 function generateCrossSVG() {
   return `
     <svg width="70" height="70" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
@@ -120,33 +114,33 @@ function generateCrossSVG() {
     </svg>`;
 }
 
-// Funktion zur Aktualisierung des Punktestands
 function updateScoreboard() {
   document.getElementById("circleWins").textContent = circleWins;
   document.getElementById("crossWins").textContent = crossWins;
 }
 
-// Funktion zum Aktualisieren des Statusbereichs
 function updateStatus() {
   document.getElementById("status").innerHTML = `
-    <div class="${currentPlayer === "circle" ? "active circle" : "circle"}">
+    <div class="${
+      currentPlayer === "circle" ? "active circle" : "inactive circle"
+    }">
         ${generateCircleSVG()}
     </div>
-    <div class="${currentPlayer === "cross" ? "active cross" : "cross"}">
+    <div class="${
+      currentPlayer === "cross" ? "active cross" : "inactive cross"
+    }">
         ${generateCrossSVG()}
     </div>`;
 }
 
-// Funktion zum Neustarten des Spiels
 function restartGame() {
   fields = [null, null, null, null, null, null, null, null, null];
-  currentPlayer = "circle"; // Der erste Spieler ist 'circle'
-  render(); // Tabelle neu rendern
-  updateStatus(); // Status aktualisieren
-  updateScoreboard(); // Punktestand zurücksetzen
+  currentPlayer = "circle";
+  gameOver = false;
+  render();
+  updateStatus();
 }
 
-// Initiales Rendern der Tabelle und Statusbereich
 render();
 updateStatus();
 updateScoreboard();
